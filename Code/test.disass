@@ -1,0 +1,184 @@
+
+test.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text.init:
+
+80000000 <_start>:
+80000000:	a011                	j	80000004 <main>
+80000002:	a891                	j	80000056 <writeToHost>
+
+80000004 <main>:
+80000004:	00000297          	auipc	t0,0x0
+80000008:	09228293          	add	t0,t0,146 # 80000096 <trapVector>
+8000000c:	30529073          	csrw	mtvec,t0
+80000010:	00000297          	auipc	t0,0x0
+80000014:	0d828293          	add	t0,t0,216 # 800000e8 <trapVectorSupervisor>
+80000018:	10529073          	csrw	stvec,t0
+8000001c:	08d00293          	li	t0,141
+80000020:	3a029073          	csrw	pmpcfg0,t0
+80000024:	800012b7          	lui	t0,0x80001
+80000028:	0022d293          	srl	t0,t0,0x2
+8000002c:	3b029073          	csrw	pmpaddr0,t0
+80000030:	4285                	li	t0,1
+80000032:	74729073          	csrw	0x747,t0
+80000036:	800002b7          	lui	t0,0x80000
+8000003a:	0002a283          	lw	t0,0(t0) # 80000000 <_start>
+8000003e:	4501                	li	a0,0
+80000040:	200d                	jal	80000062 <switchMode>
+80000042:	0001                	nop
+80000044:	800002b7          	lui	t0,0x80000
+80000048:	0002a283          	lw	t0,0(t0) # 80000000 <_start>
+8000004c:	00000073          	ecall
+80000050:	00000073          	ecall
+
+80000054 <end_main>:
+80000054:	2009                	jal	80000056 <writeToHost>
+
+80000056 <writeToHost>:
+80000056:	4185                	li	gp,1
+80000058:	00001f17          	auipc	t5,0x1
+8000005c:	fa3f2423          	sw	gp,-88(t5) # 80001000 <tohost>
+
+80000060 <end_writeToHost>:
+80000060:	3fdd                	jal	80000056 <writeToHost>
+
+80000062 <switchMode>:
+80000062:	82aa                	mv	t0,a0
+80000064:	30002373          	csrr	t1,mstatus
+80000068:	6f89                	lui	t6,0x2
+8000006a:	800f8f93          	add	t6,t6,-2048 # 1800 <_start-0x7fffe800>
+8000006e:	ffffcf93          	not	t6,t6
+80000072:	01f37333          	and	t1,t1,t6
+
+80000076 <if1>:
+80000076:	00029663          	bnez	t0,80000082 <else1>
+8000007a:	6f85                	lui	t6,0x1
+8000007c:	800f8f93          	add	t6,t6,-2048 # 800 <_start-0x7ffff800>
+80000080:	a019                	j	80000086 <end_if1>
+
+80000082 <else1>:
+80000082:	4f81                	li	t6,0
+80000084:	a009                	j	80000086 <end_if1>
+
+80000086 <end_if1>:
+80000086:	01f36333          	or	t1,t1,t6
+8000008a:	30031073          	csrw	mstatus,t1
+8000008e:	34109073          	csrw	mepc,ra
+
+80000092 <end_switchMode>:
+80000092:	30200073          	mret
+
+80000096 <trapVector>:
+80000096:	34202473          	csrr	s0,mcause
+8000009a:	44a5                	li	s1,9
+8000009c:	4921                	li	s2,8
+8000009e:	4995                	li	s3,5
+800000a0:	4a1d                	li	s4,7
+800000a2:	4a85                	li	s5,1
+
+800000a4 <if2>:
+800000a4:	00941663          	bne	s0,s1,800000b0 <else2if3>
+800000a8:	6489                	lui	s1,0x2
+800000aa:	80048493          	add	s1,s1,-2048 # 1800 <_start-0x7fffe800>
+800000ae:	a01d                	j	800000d4 <end_if23456>
+
+800000b0 <else2if3>:
+800000b0:	01241663          	bne	s0,s2,800000bc <else3if4>
+800000b4:	6485                	lui	s1,0x1
+800000b6:	80048493          	add	s1,s1,-2048 # 800 <_start-0x7ffff800>
+800000ba:	a829                	j	800000d4 <end_if23456>
+
+800000bc <else3if4>:
+800000bc:	01341463          	bne	s0,s3,800000c4 <else4if5>
+800000c0:	4481                	li	s1,0
+800000c2:	a809                	j	800000d4 <end_if23456>
+
+800000c4 <else4if5>:
+800000c4:	01441463          	bne	s0,s4,800000cc <else5if6>
+800000c8:	4481                	li	s1,0
+800000ca:	a029                	j	800000d4 <end_if23456>
+
+800000cc <else5if6>:
+800000cc:	01541463          	bne	s0,s5,800000d4 <end_if23456>
+800000d0:	4481                	li	s1,0
+800000d2:	a009                	j	800000d4 <end_if23456>
+
+800000d4 <end_if23456>:
+800000d4:	30002473          	csrr	s0,mstatus
+800000d8:	8c45                	or	s0,s0,s1
+800000da:	30041073          	csrw	mstatus,s0
+800000de:	0091                	add	ra,ra,4
+800000e0:	34109073          	csrw	mepc,ra
+
+800000e4 <end_trapVector>:
+800000e4:	30200073          	mret
+
+800000e8 <trapVectorSupervisor>:
+800000e8:	14202473          	csrr	s0,scause
+800000ec:	4485                	li	s1,1
+800000ee:	4909                	li	s2,2
+
+800000f0 <if7>:
+800000f0:	00941463          	bne	s0,s1,800000f8 <else7if8>
+800000f4:	4481                	li	s1,0
+800000f6:	a029                	j	80000100 <end_if78>
+
+800000f8 <else7if8>:
+800000f8:	01241463          	bne	s0,s2,80000100 <end_if78>
+800000fc:	4481                	li	s1,0
+800000fe:	a009                	j	80000100 <end_if78>
+
+80000100 <end_if78>:
+80000100:	10002473          	csrr	s0,sstatus
+80000104:	8c45                	or	s0,s0,s1
+80000106:	10041073          	csrw	sstatus,s0
+8000010a:	0091                	add	ra,ra,4
+8000010c:	14109073          	csrw	sepc,ra
+
+80000110 <end_trapVectorSupervisor>:
+80000110:	10200073          	sret
+	...
+
+Disassembly of section .tohost:
+
+80001000 <tohost>:
+	...
+
+80001040 <fromhost>:
+	...
+
+Disassembly of section .data:
+
+80002000 <base>:
+80002000:	cafebeef          	jal	t4,7ffedcae <_start-0x12352>
+	...
+
+Disassembly of section .riscv.attributes:
+
+00000000 <.riscv.attributes>:
+   0:	3f41                	jal	ffffff90 <_end+0x7fffdf80>
+   2:	0000                	unimp
+   4:	7200                	.2byte	0x7200
+   6:	7369                	lui	t1,0xffffa
+   8:	01007663          	bgeu	zero,a6,14 <_start-0x7fffffec>
+   c:	0035                	c.nop	13
+   e:	0000                	unimp
+  10:	7205                	lui	tp,0xfffe1
+  12:	3376                	.2byte	0x3376
+  14:	6932                	.2byte	0x6932
+  16:	7032                	.2byte	0x7032
+  18:	5f30                	lw	a2,120(a4)
+  1a:	326d                	jal	fffff9c4 <_end+0x7fffd9b4>
+  1c:	3070                	.2byte	0x3070
+  1e:	615f 7032 5f30      	.byte	0x5f, 0x61, 0x32, 0x70, 0x30, 0x5f
+  24:	30703263          	.4byte	0x30703263
+  28:	7a5f 6d6d 6c75      	.byte	0x5f, 0x7a, 0x6d, 0x6d, 0x75, 0x6c
+  2e:	7031                	c.lui	zero,0xfffec
+  30:	5f30                	lw	a2,120(a4)
+  32:	70656d73          	csrrs	s10,0x706,10
+  36:	706d                	c.lui	zero,0xffffb
+  38:	7031                	c.lui	zero,0xfffec
+  3a:	0030                	add	a2,sp,8
+  3c:	0108                	add	a0,sp,128
+  3e:	0b0a                	sll	s6,s6,0x2
