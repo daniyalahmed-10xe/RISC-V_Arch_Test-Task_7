@@ -1,6 +1,6 @@
 # <center> RISC-V Arch Test </center>
 
-## *<center> Implementation of Task 6 </center>*
+## *<center> Implementation of Task 7 </center>*
 
 #### Question Statement:
 
